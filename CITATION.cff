@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+title: "mk1-kernel-limits"
+message: "If you use this, please cite it."
+authors:
+  - family-names: Frohman
+    given-names: Benjamin Stanley
+    orcid: "https://orcid.org/0009-0006-7068-3718"
+license: Apache-2.0
+date-released: 2026-11-04

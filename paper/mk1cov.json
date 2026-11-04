@@ -1,0 +1,564 @@
+{
+  "source": "/tmp/mk1_audit.tex",
+  "counts": {
+    "verified": 5,
+    "verified-audit": 0,
+    "build-ok": 0,
+    "build-mismatch": 0,
+    "broken": 0,
+    "open": 0,
+    "silent": 19,
+    "non-claim": 27
+  },
+  "total": 51,
+  "classified": 51,
+  "coverage": 1,
+  "real": {
+    "theorems": 27,
+    "modules": 2,
+    "jobs": 8267
+  },
+  "verdict": "HALT",
+  "units": [
+    {
+      "id": "5655280fcc",
+      "kind": "title",
+      "line": 4,
+      "text": "MK-1: an exactly simulated two-qubit ZZ-feature-map fidelity kernel,\\\\ with machine-checked kernel properties\\\\ and a finite-shot hardware check",
+      "refs": [],
+      "status": "non-claim",
+      "notes": []
+    },
+    {
+      "id": "8cd62e0437",
+      "kind": "sentence",
+      "line": 11,
+      "text": "MK-1 is a small, self-contained implementation of a quantum fidelity kernel on two qubits: a ZZ-type feature map $U(x)$, the compute--uncompute estimator $K(x,x')=|\\langle 00|U(x')^\\dagger U(x)|00\\rangle|^2$, and a visualisation of the kernel-SVM pipeline.",
+      "refs": [],
+      "status": "silent",
+      "notes": [
+        "mathematical content with no Lean mapping"
+      ]
+    },
+    {
+      "id": "81b008cf25",
+      "kind": "sentence",
+      "line": 13,
+      "text": "The construction is not new; it follows Havl\\'{\\i}\\v{c}ek et al.~\\cite{havlicek} and Schuld--Killoran~\\cite{schuld}.",
+      "refs": [],
+      "status": "non-claim",
+      "notes": []
+    },
+    {
+      "id": "0eeacdbff4",
+      "kind": "sentence",
+      "line": 14,
+      "text": "This note records exactly what the code computes, documents a defect in the original script (its ``entangling'' gate was a no-op, so the state is a product state and the kernel factorises, proved in Lean on explicit $4\\times4$ matrices), and lists what is machine-checked in Lean~4 with Mathlib: for any unitary feature map, $K(x,x)=1$, symmetry, $0\\le K\\le 1$, compute--uncompute equals state fidelity, and positive semidefiniteness of the Gram matrix.",
+      "refs": [],
+      "status": "silent",
+      "notes": [
+        "mathematical content with no Lean mapping"
+      ]
+    },
+    {
+      "id": "9e3c5ebb46",
+      "kind": "sentence",
+      "line": 17,
+      "text": "A small finite-shot study (6 circuits, $N=256$--$8192$) on a simulator and on one IBM device is reported.",
+      "refs": [],
+      "status": "silent",
+      "notes": [
+        "mathematical content with no Lean mapping"
+      ]
+    },
+    {
+      "id": "7d72350c4c",
+      "kind": "sentence",
+      "line": 18,
+      "text": "No quantum advantage or new learning-theoretic claim is made, and no SVM is trained.",
+      "refs": [],
+      "status": "non-claim",
+      "notes": []
+    },
+    {
+      "id": "0bfda8ecac",
+      "kind": "heading",
+      "line": 21,
+      "text": "The construction",
+      "refs": [],
+      "status": "non-claim",
+      "notes": []
+    },
+    {
+      "id": "ac8a1af275",
+      "kind": "sentence",
+      "line": 22,
+      "text": "Qubit 0 is the first tensor factor and the CNOT control.",
+      "refs": [],
+      "status": "non-claim",
+      "notes": []
+    },
+    {
+      "id": "c4f4ad88f5",
+      "kind": "sentence",
+      "line": 22,
+      "text": "For $x=(x_0,x_1)\\in\\mathbb{R}^2$, \\[ U(x)=\\mathrm{CNOT}\\,(I\\otimes R_Z(2x_0x_1))\\,\\mathrm{CNOT}\\,(R_Z(2x_0)\\otimes R_Z(2x_1))\\,(H\\otimes H), \\qquad R_Z(\\theta)=\\mathrm{diag}(e^{-i\\theta/2},e^{i\\theta/2}).",
+      "refs": [],
+      "status": "silent",
+      "notes": [
+        "mathematical content with no Lean mapping"
+      ]
+    },
+    {
+      "id": "44394777ce",
+      "kind": "sentence",
+      "line": 26,
+      "text": "\\] Since $\\mathrm{CNOT}(I\\otimes R_Z(\\theta))\\mathrm{CNOT}=e^{-i\\theta Z\\otimes Z/2}$, writing basis states by signs $s\\in\\{\\pm1\\}^2$, \\[ U(x)|00\\rangle=\\tfrac12\\sum_{s} e^{-i\\varphi(s,x)}|s\\rangle,\\qquad \\varphi(s,x)=x_0s_0+x_1s_1+x_0x_1s_0s_1, \\] so with $\\Delta=x-x'$ and $\\Delta_{01}=x_0x_1-x_0'x_1'$, \\[ K(x,x')=\\Bigl|\\tfrac14\\sum_{s}e^{-i(\\Delta_0s_0+\\Delta_1s_1+\\Delta_{01}s_0s_1)}\\Bigr|^2 .",
+      "refs": [],
+      "status": "silent",
+      "notes": [
+        "mathematical content with no Lean mapping"
+      ]
+    },
+    {
+      "id": "0f3c1292a3",
+      "kind": "display",
+      "line": 26,
+      "text": "\\[ U(x)|00\\rangle=\\tfrac12\\sum_{s} e^{-i\\varphi(s,x)}|s\\rangle,\\qquad \\varphi(s,x)=x_0s_0+x_1s_1+x_0x_1s_0s_1, \\]",
+      "refs": [],
+      "status": "silent",
+      "notes": [
+        "mathematical content with no Lean mapping"
+      ]
+    },
+    {
+      "id": "6056e12c38",
+      "kind": "sentence",
+      "line": 34,
+      "text": "\\] This is one layer of the ZZ feature map of~\\cite{havlicek} with the simplified pair coefficient $x_0x_1$ (their map uses $(\\pi-x_0)(\\pi-x_1)$ and two layers).",
+      "refs": [],
+      "status": "silent",
+      "notes": [
+        "mathematical content with no Lean mapping"
+      ]
+    },
+    {
+      "id": "a8c28c5ca9",
+      "kind": "sentence",
+      "line": 36,
+      "text": "With one layer, and on two qubits, the kernel has the closed form above and is trivially classically computable; MK-1 is a teaching and testing artefact.",
+      "refs": [],
+      "status": "non-claim",
+      "notes": []
+    },
+    {
+      "id": "ee5000fe50",
+      "kind": "sentence",
+      "line": 38,
+      "text": "The closed form (\\texttt{kernel\\_closed\\_form}) agrees with the statevector kernel to $10^{-12}$ in the tests ($1.3\\times10^{-15}$ on the 16 pairs of Section~\\ref{sec:shots}).",
+      "refs": [],
+      "status": "silent",
+      "notes": [
+        "mathematical content with no Lean mapping"
+      ]
+    },
+    {
+      "id": "83d217f0f1",
+      "kind": "sentence",
+      "line": 39,
+      "text": "General results on when quantum kernels concentrate or can be dequantised~\\cite{kubler,thanasilp,huang} are cited, not proved or formalised here.",
+      "refs": [],
+      "status": "non-claim",
+      "notes": []
+    },
+    {
+      "id": "b8dc4a4245",
+      "kind": "heading",
+      "line": 41,
+      "text": "A defect in the original script",
+      "refs": [],
+      "status": "non-claim",
+      "notes": []
+    },
+    {
+      "id": "d9f471c34e",
+      "kind": "sentence",
+      "line": 42,
+      "text": "The original \\texttt{mk1\\_moving\\_tower.py} (kept in \\texttt{original/}) applied the middle $R_Z(2x_0x_1)$ to the \\emph{control} qubit.",
+      "refs": [],
+      "status": "silent",
+      "notes": [
+        "mathematical content with no Lean mapping"
+      ]
+    },
+    {
+      "id": "bf68f4a6f0",
+      "kind": "sentence",
+      "line": 43,
+      "text": "A diagonal gate on the control commutes with CNOT, so the two CNOTs cancel and no $Z\\otimes Z$ phase is produced; the kernel becomes the product $\\cos^2(\\Delta_0+\\Delta_{01})\\cos^2\\Delta_1$.",
+      "refs": [],
+      "status": "silent",
+      "notes": [
+        "mathematical content with no Lean mapping"
+      ]
+    },
+    {
+      "id": "84680c7192",
+      "kind": "sentence",
+      "line": 44,
+      "text": "The package keeps this as \\texttt{variant=\"legacy\"} for reproducibility and uses the corrected map by default.",
+      "refs": [],
+      "status": "non-claim",
+      "notes": []
+    },
+    {
+      "id": "0384c5460d",
+      "kind": "sentence",
+      "line": 45,
+      "text": "Both facts ($\\mathrm{CNOT}(D\\otimes I)\\mathrm{CNOT}=D\\otimes I$ and the $Z\\otimes Z$ phase for a target gate) are proved in Lean (\\texttt{cnot\\_onControl\\_cnot}\\lean{MK1.cnot_onControl_cnot}, also stated as \\texttt{phantom\\_entangler}\\lean{MK1.phantom_entangler}; \\texttt{cnot\\_onTarget\\_cnot}\\lean{MK1.cnot_onTarget_cnot}).",
+      "refs": [
+        "MK1.cnot_onControl_cnot",
+        "MK1.phantom_entangler",
+        "MK1.cnot_onTarget_cnot"
+      ],
+      "status": "verified",
+      "notes": [
+        "MK1.cnot_onControl_cnot [theorem] axioms: propext, Classical.choice, Quot.sound",
+        "MK1.phantom_entangler [theorem] axioms: propext, Classical.choice, Quot.sound",
+        "MK1.cnot_onTarget_cnot [theorem] axioms: propext, Classical.choice, Quot.sound"
+      ]
+    },
+    {
+      "id": "e7744424c8",
+      "kind": "sentence",
+      "line": 46,
+      "text": "\\texttt{lean/MK1/Factorization.lean} proves on explicit $4\\times4$ complex matrices that the legacy state is a product state (\\texttt{legacyState\\_eq\\_prod}\\lean{MK1.legacyState_eq_prod}), that inner products and kernels of product states factor (\\texttt{inner\\_prod2}\\lean{MK1.inner_prod2}, \\texttt{kernel4\\_prod2}\\lean{MK1.kernel4_prod2}), hence the legacy kernel is a product of single-qubit kernels (\\texttt{legacy\\_kernel\\_factors}\\lean{MK1.legacy_kernel_factors}); it also proves \\texttt{kernel4\\_symm}\\lean{MK1.kernel4_symm} and \\texttt{kernel4\\_self}\\lean{MK1.kernel4_self} for the concrete $4$-dimensional kernel.",
+      "refs": [
+        "MK1.legacyState_eq_prod",
+        "MK1.inner_prod2",
+        "MK1.kernel4_prod2",
+        "MK1.legacy_kernel_factors",
+        "MK1.kernel4_symm",
+        "MK1.kernel4_self"
+      ],
+      "status": "verified",
+      "notes": [
+        "MK1.legacyState_eq_prod [theorem] axioms: propext, Classical.choice, Quot.sound",
+        "MK1.inner_prod2 [theorem] axioms: propext, Classical.choice, Quot.sound",
+        "MK1.kernel4_prod2 [theorem] axioms: propext, Classical.choice, Quot.sound",
+        "MK1.legacy_kernel_factors [theorem] axioms: propext, Classical.choice, Quot.sound",
+        "MK1.kernel4_symm [theorem] axioms: propext, Classical.choice, Quot.sound",
+        "MK1.kernel4_self [theorem] axioms: propext, Classical.choice, Quot.sound"
+      ]
+    },
+    {
+      "id": "fda27372ce",
+      "kind": "heading",
+      "line": 51,
+      "text": "What is machine-checked",
+      "refs": [],
+      "status": "non-claim",
+      "notes": []
+    },
+    {
+      "id": "9283185bd1",
+      "kind": "sentence",
+      "line": 52,
+      "text": "\\texttt{lean/MK1/FidelityKernel.lean} defines $K_\\psi(x,y)=|\\langle\\psi(y),\\psi(x)\\rangle|^2$ for any family $\\psi$ in a complex inner product space and proves:",
+      "refs": [],
+      "status": "silent",
+      "notes": [
+        "mathematical content with no Lean mapping"
+      ]
+    },
+    {
+      "id": "4764939d8a",
+      "kind": "sentence",
+      "line": 54,
+      "text": "\\texttt{fidelity\\_self}\\lean{MK1.fidelity_self}, \\texttt{fidelity\\_symm}\\lean{MK1.fidelity_symm}, \\texttt{fidelity\\_nonneg}\\lean{MK1.fidelity_nonneg}, \\texttt{fidelity\\_le\\_one}\\lean{MK1.fidelity_le_one}: $K(x,x)=1$ for unit states, symmetry, $0\\le K\\le1$ (Cauchy--Schwarz);",
+      "refs": [
+        "MK1.fidelity_self",
+        "MK1.fidelity_symm",
+        "MK1.fidelity_nonneg",
+        "MK1.fidelity_le_one"
+      ],
+      "status": "verified",
+      "notes": [
+        "MK1.fidelity_self [theorem] axioms: propext, Classical.choice, Quot.sound",
+        "MK1.fidelity_symm [theorem] axioms: propext, Classical.choice, Quot.sound",
+        "MK1.fidelity_nonneg [theorem] axioms: propext, Classical.choice, Quot.sound",
+        "MK1.fidelity_le_one [theorem] axioms: propext, Classical.choice, Quot.sound"
+      ]
+    },
+    {
+      "id": "c645cfe6ca",
+      "kind": "sentence",
+      "line": 55,
+      "text": "\\texttt{norm\\_featureState}\\lean{MK1.norm_featureState}, \\texttt{computeUncompute\\_eq\\_fidelity}\\lean{MK1.computeUncompute_eq_fidelity}: states $U(x)v$ from unitaries (linear isometry equivalences) are unit vectors, and $|\\langle v,U(y)^{-1}U(x)v\\rangle|^2=K(x,y)$;",
+      "refs": [
+        "MK1.norm_featureState",
+        "MK1.computeUncompute_eq_fidelity"
+      ],
+      "status": "verified",
+      "notes": [
+        "MK1.norm_featureState [theorem] axioms: propext, Classical.choice, Quot.sound",
+        "MK1.computeUncompute_eq_fidelity [theorem] axioms: propext, Classical.choice, Quot.sound"
+      ]
+    },
+    {
+      "id": "73feb234fb",
+      "kind": "sentence",
+      "line": 56,
+      "text": "\\texttt{fidelity\\_gram\\_posSemidef}\\lean{MK1.fidelity_gram_posSemidef}: for states in $\\mathbb{C}^n$ and finitely many points, the matrix $[K(x_j,x_i)]$ is positive semidefinite, via $|\\langle a,b\\rangle|^2=\\langle a\\otimes\\bar a,b\\otimes\\bar b\\rangle$ and Mathlib's Gram-matrix theorem.",
+      "refs": [
+        "MK1.fidelity_gram_posSemidef"
+      ],
+      "status": "verified",
+      "notes": [
+        "MK1.fidelity_gram_posSemidef [theorem] axioms: propext, Classical.choice, Quot.sound"
+      ]
+    },
+    {
+      "id": "934398bf3e",
+      "kind": "sentence",
+      "line": 59,
+      "text": "All are \\texttt{sorry}-free; \\texttt{AxiomAudit.lean} shows only \\texttt{propext}, \\texttt{Classical.choice}, \\texttt{Quot.sound}; CI rebuilds and audits on every push.",
+      "refs": [],
+      "status": "non-claim",
+      "notes": []
+    },
+    {
+      "id": "eb3e9e8c3b",
+      "kind": "sentence",
+      "line": 60,
+      "text": "These are standard facts; the Lean development checks them, it does not establish anything new.",
+      "refs": [],
+      "status": "non-claim",
+      "notes": []
+    },
+    {
+      "id": "4a7c80fc2e",
+      "kind": "sentence",
+      "line": 61,
+      "text": "The Lean code does not model the specific gate angles beyond the CNOT identities and the legacy factorisation; the agreement of the numerical circuit with the closed form is checked by the Python tests.",
+      "refs": [],
+      "status": "non-claim",
+      "notes": []
+    },
+    {
+      "id": "3a574f49c5",
+      "kind": "heading",
+      "line": 63,
+      "text": "What is tested numerically",
+      "refs": [],
+      "status": "non-claim",
+      "notes": []
+    },
+    {
+      "id": "2c2b2416f5",
+      "kind": "sentence",
+      "line": 64,
+      "text": "The Python tests (CI, every push) check for both variants: unitarity of $U(x)$; $K(x,x)=1$; symmetry; $0\\le K\\le1$; compute--uncompute equals $|\\langle\\psi(x')|\\psi(x)\\rangle|^2$; agreement with the matrix-free closed form to $10^{-12}$; Gram matrices symmetric with minimum eigenvalue $>-10^{-10}$; and the two CNOT identities.",
+      "refs": [],
+      "status": "silent",
+      "notes": [
+        "mathematical content with no Lean mapping"
+      ]
+    },
+    {
+      "id": "aa4300c1e1",
+      "kind": "heading",
+      "line": 68,
+      "text": "Finite-shot estimation",
+      "refs": [],
+      "status": "non-claim",
+      "notes": []
+    },
+    {
+      "id": "a2f7b44292",
+      "kind": "sentence",
+      "line": 68,
+      "text": "\\label{sec:shots} For four points (seed 7) the exact Gram matrix has off-diagonal entries $0.1246, 0.0840, 0.2525, 0.9176, 0.3283, 0.3298$ (minimum eigenvalue $0.081$).",
+      "refs": [],
+      "status": "silent",
+      "notes": [
+        "mathematical content with no Lean mapping"
+      ]
+    },
+    {
+      "id": "dc2a132cba",
+      "kind": "sentence",
+      "line": 70,
+      "text": "Each is estimated as the frequency of $00$ in a compute--uncompute circuit, using the first $N$ of 8192 shots.",
+      "refs": [],
+      "status": "silent",
+      "notes": [
+        "mathematical content with no Lean mapping"
+      ]
+    },
+    {
+      "id": "0d59512ab4",
+      "kind": "sentence",
+      "line": 70,
+      "text": "RMS error over the six entries:",
+      "refs": [],
+      "status": "non-claim",
+      "notes": []
+    },
+    {
+      "id": "13e440aeb4",
+      "kind": "table-row",
+      "line": 71,
+      "text": "$N$ & 256 & 512 & 1024 & 2048 & 4096 & 8192 & log--log slope",
+      "refs": [],
+      "status": "silent",
+      "notes": [
+        "mathematical content with no Lean mapping"
+      ]
+    },
+    {
+      "id": "c04bc1319c",
+      "kind": "table-row",
+      "line": 72,
+      "text": "Aer simulator (seed 11) & .0234 & .0105 & .0084 & .0102 & .0045 & .0044 & $-0.44$",
+      "refs": [],
+      "status": "silent",
+      "notes": [
+        "mathematical content with no Lean mapping"
+      ]
+    },
+    {
+      "id": "6215fc5c1e",
+      "kind": "table-row",
+      "line": 73,
+      "text": "IBM \\texttt{ibm\\_kingston} & .0373 & .0330 & .0299 & .0218 & .0213 & .0194 & $-0.20$",
+      "refs": [],
+      "status": "silent",
+      "notes": [
+        "mathematical content with no Lean mapping"
+      ]
+    },
+    {
+      "id": "3b3c3c8865",
+      "kind": "sentence",
+      "line": 76,
+      "text": "A 400-repetition binomial study gives slope $-0.506$, consistent with $N^{-1/2}$.",
+      "refs": [],
+      "status": "silent",
+      "notes": [
+        "mathematical content with no Lean mapping"
+      ]
+    },
+    {
+      "id": "71c30bb6db",
+      "kind": "sentence",
+      "line": 76,
+      "text": "On hardware the error levels off near $0.02$: device noise adds a bias that more shots do not remove.",
+      "refs": [],
+      "status": "silent",
+      "notes": [
+        "mathematical content with no Lean mapping"
+      ]
+    },
+    {
+      "id": "c03dd8f97d",
+      "kind": "sentence",
+      "line": 77,
+      "text": "Run: \\texttt{ibm\\_kingston}, 2026-11-04 20:42 UTC, one SamplerV2 job \\texttt{dblpgrd8ft8s738ths20}, 6 circuits, 8192 shots, transpiled depth 18, no error mitigation (\\texttt{hardware/run.py}, \\texttt{results/}).",
+      "refs": [],
+      "status": "non-claim",
+      "notes": []
+    },
+    {
+      "id": "e1e5d4c699",
+      "kind": "heading",
+      "line": 80,
+      "text": "Limitations",
+      "refs": [],
+      "status": "non-claim",
+      "notes": []
+    },
+    {
+      "id": "0d0b71b04e",
+      "kind": "sentence",
+      "line": 81,
+      "text": "Two qubits; one hardware job without mitigation; no SVM is trained in the package (the DUAL/DECIDE stages are illustrative); no claim of quantum advantage.",
+      "refs": [],
+      "status": "non-claim",
+      "notes": []
+    },
+    {
+      "id": "924ad4821b",
+      "kind": "sentence",
+      "line": 82,
+      "text": "For the limits of such kernels see~\\cite{kubler}.",
+      "refs": [],
+      "status": "non-claim",
+      "notes": []
+    },
+    {
+      "id": "2e778488e7",
+      "kind": "sentence",
+      "line": 84,
+      "text": "\\begin{thebibliography}{9} \\bibitem{havlicek} V.~Havl\\'{\\i}\\v{c}ek, A.~D.~C\\'orcoles, K.~Temme, A.~W.~Harrow, A.~Kandala, J.~M.~Chow, J.~M.~Gambetta, Supervised learning with quantum-enhanced feature spaces, \\emph{Nature} 567 (2019) 209--212, doi:10.1038/s41586-019-0980-2.",
+      "refs": [],
+      "status": "non-claim",
+      "notes": []
+    },
+    {
+      "id": "ea40cf4b16",
+      "kind": "sentence",
+      "line": 87,
+      "text": "\\bibitem{schuld} M.~Schuld, N.~Killoran, Quantum machine learning in feature Hilbert spaces, \\emph{Phys.\\ Rev.\\ Lett.} 122 (2019) 040504.",
+      "refs": [],
+      "status": "non-claim",
+      "notes": []
+    },
+    {
+      "id": "1dd90f2748",
+      "kind": "sentence",
+      "line": 88,
+      "text": "\\bibitem{kubler} J.~M.~K\\\"ubler, S.~Buchholz, B.~Sch\\\"olkopf, The inductive bias of quantum kernels, \\emph{NeurIPS} 34 (2021).",
+      "refs": [],
+      "status": "non-claim",
+      "notes": []
+    },
+    {
+      "id": "a6b7f9bfdd",
+      "kind": "sentence",
+      "line": 89,
+      "text": "\\bibitem{thanasilp} S.~Thanasilp, S.~Wang, M.~Cerezo, Z.~Holmes, Exponential concentration in quantum kernel methods, \\emph{Nat.\\ Commun.} 15 (2024) 5200.",
+      "refs": [],
+      "status": "non-claim",
+      "notes": []
+    },
+    {
+      "id": "93321a65ce",
+      "kind": "sentence",
+      "line": 90,
+      "text": "\\bibitem{huang} H.-Y.~Huang et al., Power of data in quantum machine learning, \\emph{Nat.\\ Commun.} 12 (2021) 2631.",
+      "refs": [],
+      "status": "non-claim",
+      "notes": []
+    },
+    {
+      "id": "76dca4bfc6",
+      "kind": "sentence",
+      "line": 91,
+      "text": "\\end{thebibliography} Code: \\url{https://github.com/BenFrohman/mk1-kernel-limits}.",
+      "refs": [],
+      "status": "non-claim",
+      "notes": []
+    },
+    {
+      "id": "aa8a1aa244",
+      "kind": "sentence",
+      "line": 92,
+      "text": "License: Apache-2.0 (code), CC BY 4.0 (this note).",
+      "refs": [],
+      "status": "non-claim",
+      "notes": []
+    }
+  ],
+  "title": "MK-1: an exactly simulated two-qubit ZZ-feature-map fidelity kernel,\\\\ with machine-checked kernel properties\\\\ and a finite-shot hardware check"
+}

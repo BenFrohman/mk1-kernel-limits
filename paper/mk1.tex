@@ -1,0 +1,92 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,hyperref}
+\title{MK-1: an exactly simulated two-qubit ZZ-feature-map fidelity kernel,\\ with machine-checked kernel properties\\ and a finite-shot hardware check}
+\author{Benjamin Stanley Frohman\\ \small ORCID \href{https://orcid.org/0009-0006-7068-3718}{0009-0006-7068-3718}}
+\date{November 3, 2026; revised November 4, 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+MK-1 is a small, self-contained implementation of a quantum fidelity kernel on two qubits:
+a ZZ-type feature map $U(x)$, the compute--uncompute estimator $K(x,x')=|\langle 00|U(x')^\dagger U(x)|00\rangle|^2$,
+and a visualisation of the kernel-SVM pipeline. The construction is not new; it follows Havl\'{\i}\v{c}ek et al.~\cite{havlicek} and Schuld--Killoran~\cite{schuld}.
+This note records exactly what the code computes, documents a defect in the original script (its ``entangling'' gate
+was a no-op, so the state is a product state and the kernel factorises, proved in Lean on explicit $4\times4$ matrices), and lists what is machine-checked in Lean~4 with Mathlib: for any unitary feature map,
+$K(x,x)=1$, symmetry, $0\le K\le 1$, compute--uncompute equals state fidelity, and positive semidefiniteness of the Gram matrix.
+A small finite-shot study (6 circuits, $N=256$--$8192$) on a simulator and on one IBM device is reported.
+No quantum advantage or new learning-theoretic claim is made, and no SVM is trained.
+\end{abstract}
+
+\section{The construction}
+Qubit 0 is the first tensor factor and the CNOT control. For $x=(x_0,x_1)\in\mathbb{R}^2$,
+\[
+U(x)=\mathrm{CNOT}\,(I\otimes R_Z(2x_0x_1))\,\mathrm{CNOT}\,(R_Z(2x_0)\otimes R_Z(2x_1))\,(H\otimes H),
+\qquad R_Z(\theta)=\mathrm{diag}(e^{-i\theta/2},e^{i\theta/2}).
+\]
+Since $\mathrm{CNOT}(I\otimes R_Z(\theta))\mathrm{CNOT}=e^{-i\theta Z\otimes Z/2}$, writing basis states by signs $s\in\{\pm1\}^2$,
+\[
+U(x)|00\rangle=\tfrac12\sum_{s} e^{-i\varphi(s,x)}|s\rangle,\qquad \varphi(s,x)=x_0s_0+x_1s_1+x_0x_1s_0s_1,
+\]
+so with $\Delta=x-x'$ and $\Delta_{01}=x_0x_1-x_0'x_1'$,
+\[
+K(x,x')=\Bigl|\tfrac14\sum_{s}e^{-i(\Delta_0s_0+\Delta_1s_1+\Delta_{01}s_0s_1)}\Bigr|^2 .
+\]
+This is one layer of the ZZ feature map of~\cite{havlicek} with the simplified pair coefficient $x_0x_1$
+(their map uses $(\pi-x_0)(\pi-x_1)$ and two layers). With one layer, and on two qubits, the kernel has the
+closed form above and is trivially classically computable; MK-1 is a teaching and testing artefact.
+The closed form (\texttt{kernel\_closed\_form}) agrees with the statevector kernel to $10^{-12}$ in the tests ($1.3\times10^{-15}$ on the 16 pairs of Section~\ref{sec:shots}).
+General results on when quantum kernels concentrate or can be dequantised~\cite{kubler,thanasilp,huang} are cited, not proved or formalised here.
+
+\section{A defect in the original script}
+The original \texttt{mk1\_moving\_tower.py} (kept in \texttt{original/}) applied the middle $R_Z(2x_0x_1)$ to the \emph{control} qubit.
+A diagonal gate on the control commutes with CNOT, so the two CNOTs cancel and no $Z\otimes Z$ phase is produced; the kernel becomes the
+product $\cos^2(\Delta_0+\Delta_{01})\cos^2\Delta_1$. The package keeps this as \texttt{variant="legacy"} for reproducibility and uses
+the corrected map by default. Both facts ($\mathrm{CNOT}(D\otimes I)\mathrm{CNOT}=D\otimes I$ and the $Z\otimes Z$ phase for a target gate)
+are proved in Lean (\texttt{cnot\_onControl\_cnot}, also stated as \texttt{phantom\_entangler}; \texttt{cnot\_onTarget\_cnot}). \texttt{lean/MK1/Factorization.lean} proves on explicit $4\times4$ complex
+matrices that the legacy state is a product state (\texttt{legacyState\_eq\_prod}), that inner products and kernels of product states factor
+(\texttt{inner\_prod2}, \texttt{kernel4\_prod2}), hence the legacy kernel is a product of single-qubit kernels (\texttt{legacy\_kernel\_factors});
+it also proves \texttt{kernel4\_symm} and \texttt{kernel4\_self} for the concrete $4$-dimensional kernel.
+
+\section{What is machine-checked}
+\texttt{lean/MK1/FidelityKernel.lean} defines $K_\psi(x,y)=|\langle\psi(y),\psi(x)\rangle|^2$ for any family $\psi$ in a complex inner product space and proves:
+\begin{itemize}
+\item \texttt{fidelity\_self}, \texttt{fidelity\_symm}, \texttt{fidelity\_nonneg}, \texttt{fidelity\_le\_one}: $K(x,x)=1$ for unit states, symmetry, $0\le K\le1$ (Cauchy--Schwarz);
+\item \texttt{norm\_featureState}, \texttt{computeUncompute\_eq\_fidelity}: states $U(x)v$ from unitaries (linear isometry equivalences) are unit vectors, and $|\langle v,U(y)^{-1}U(x)v\rangle|^2=K(x,y)$;
+\item \texttt{fidelity\_gram\_posSemidef}: for states in $\mathbb{C}^n$ and finitely many points, the matrix $[K(x_j,x_i)]$ is positive semidefinite,
+via $|\langle a,b\rangle|^2=\langle a\otimes\bar a,b\otimes\bar b\rangle$ and Mathlib's Gram-matrix theorem.
+\end{itemize}
+All are \texttt{sorry}-free; \texttt{AxiomAudit.lean} shows only \texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}; CI rebuilds and audits on every push.
+These are standard facts; the Lean development checks them, it does not establish anything new.
+The Lean code does not model the specific gate angles beyond the CNOT identities and the legacy factorisation; the agreement of the numerical circuit with the closed form is checked by the Python tests.
+
+\section{What is tested numerically}
+The Python tests (CI, every push) check for both variants: unitarity of $U(x)$; $K(x,x)=1$; symmetry; $0\le K\le1$;
+compute--uncompute equals $|\langle\psi(x')|\psi(x)\rangle|^2$; agreement with the matrix-free closed form to $10^{-12}$;
+Gram matrices symmetric with minimum eigenvalue $>-10^{-10}$; and the two CNOT identities.
+
+\section{Finite-shot estimation}\label{sec:shots}
+For four points (seed 7) the exact Gram matrix has off-diagonal entries $0.1246, 0.0840, 0.2525, 0.9176, 0.3283, 0.3298$ (minimum eigenvalue $0.081$).
+Each is estimated as the frequency of $00$ in a compute--uncompute circuit, using the first $N$ of 8192 shots. RMS error over the six entries:
+\begin{center}\begin{tabular}{lccccccc}
+$N$ & 256 & 512 & 1024 & 2048 & 4096 & 8192 & log--log slope\\\hline
+Aer simulator (seed 11) & .0234 & .0105 & .0084 & .0102 & .0045 & .0044 & $-0.44$\\
+IBM \texttt{ibm\_kingston} & .0373 & .0330 & .0299 & .0218 & .0213 & .0194 & $-0.20$
+\end{tabular}\end{center}
+A 400-repetition binomial study gives slope $-0.506$, consistent with $N^{-1/2}$. On hardware the error levels off near $0.02$:
+device noise adds a bias that more shots do not remove. Run: \texttt{ibm\_kingston}, 2026-11-04 20:42 UTC, one SamplerV2 job
+\texttt{dblpgrd8ft8s738ths20}, 6 circuits, 8192 shots, transpiled depth 18, no error mitigation (\texttt{hardware/run.py}, \texttt{results/}).
+
+\section{Limitations}
+Two qubits; one hardware job without mitigation; no SVM is trained in the package (the DUAL/DECIDE stages are illustrative);
+no claim of quantum advantage. For the limits of such kernels see~\cite{kubler}.
+
+\begin{thebibliography}{9}
+\bibitem{havlicek} V.~Havl\'{\i}\v{c}ek, A.~D.~C\'orcoles, K.~Temme, A.~W.~Harrow, A.~Kandala, J.~M.~Chow, J.~M.~Gambetta,
+Supervised learning with quantum-enhanced feature spaces, \emph{Nature} 567 (2019) 209--212, doi:10.1038/s41586-019-0980-2.
+\bibitem{schuld} M.~Schuld, N.~Killoran, Quantum machine learning in feature Hilbert spaces, \emph{Phys.\ Rev.\ Lett.} 122 (2019) 040504.
+\bibitem{kubler} J.~M.~K\"ubler, S.~Buchholz, B.~Sch\"olkopf, The inductive bias of quantum kernels, \emph{NeurIPS} 34 (2021).
+\bibitem{thanasilp} S.~Thanasilp, S.~Wang, M.~Cerezo, Z.~Holmes, Exponential concentration in quantum kernel methods, \emph{Nat.\ Commun.} 15 (2024) 5200.
+\bibitem{huang} H.-Y.~Huang et al., Power of data in quantum machine learning, \emph{Nat.\ Commun.} 12 (2021) 2631.
+\end{thebibliography}
+Code: \url{https://github.com/BenFrohman/mk1-kernel-limits}. License: Apache-2.0 (code), CC BY 4.0 (this note).
+\end{document}

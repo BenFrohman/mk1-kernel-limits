@@ -1,0 +1,131 @@
+\documentclass[11pt]{article}
+%DIF LATEXDIFF DIFFERENCE FILE
+%DIF DEL mk1_published.tex   Wed Nov  4 15:30:26 2026
+%DIF ADD mk1.tex             Wed Nov  4 15:32:49 2026
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,hyperref}
+\title{MK-1: an exactly simulated two-qubit ZZ-feature-map fidelity kernel,\\ with machine-checked kernel properties\DIFaddbegin \\ \DIFadd{and a finite-shot hardware check}\DIFaddend }
+\author{Benjamin Stanley Frohman\DIFaddbegin \\ \small \DIFadd{ORCID }\href{https://orcid.org/0009-0006-7068-3718}{\DIFadd{0009-0006-7068-3718}}\DIFaddend }
+\date{November 3, 2026\DIFaddbegin \DIFadd{; revised November 4, 2026}\DIFaddend }
+%DIF PREAMBLE EXTENSION ADDED BY LATEXDIFF
+%DIF UNDERLINE PREAMBLE %DIF PREAMBLE
+\RequirePackage[normalem]{ulem} %DIF PREAMBLE
+\RequirePackage{color}\definecolor{RED}{rgb}{1,0,0}\definecolor{BLUE}{rgb}{0,0,1} %DIF PREAMBLE
+\providecommand{\DIFaddtex}[1]{{\protect\color{blue}\uwave{#1}}} %DIF PREAMBLE
+\providecommand{\DIFdeltex}[1]{{\protect\color{red}\sout{#1}}} %DIF PREAMBLE
+%DIF SAFE PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFaddbegin}{} %DIF PREAMBLE
+\providecommand{\DIFaddend}{} %DIF PREAMBLE
+\providecommand{\DIFdelbegin}{} %DIF PREAMBLE
+\providecommand{\DIFdelend}{} %DIF PREAMBLE
+\providecommand{\DIFmodbegin}{} %DIF PREAMBLE
+\providecommand{\DIFmodend}{} %DIF PREAMBLE
+%DIF FLOATSAFE PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFaddFL}[1]{\DIFadd{#1}} %DIF PREAMBLE
+\providecommand{\DIFdelFL}[1]{\DIFdel{#1}} %DIF PREAMBLE
+\providecommand{\DIFaddbeginFL}{} %DIF PREAMBLE
+\providecommand{\DIFaddendFL}{} %DIF PREAMBLE
+\providecommand{\DIFdelbeginFL}{} %DIF PREAMBLE
+\providecommand{\DIFdelendFL}{} %DIF PREAMBLE
+%DIF HYPERREF PREAMBLE %DIF PREAMBLE
+\providecommand{\DIFadd}[1]{\texorpdfstring{\DIFaddtex{#1}}{#1}} %DIF PREAMBLE
+\providecommand{\DIFdel}[1]{\texorpdfstring{\DIFdeltex{#1}}{}} %DIF PREAMBLE
+%DIF AMSMATHULEM PREAMBLE %DIF PREAMBLE
+\makeatletter %DIF PREAMBLE
+\let\sout@orig\sout %DIF PREAMBLE
+\renewcommand{\sout}[1]{\ifmmode\text{\sout@orig{\ensuremath{#1}}}\else\sout@orig{#1}\fi} %DIF PREAMBLE
+\makeatother %DIF PREAMBLE
+%DIF END PREAMBLE EXTENSION ADDED BY LATEXDIFF
+
+\begin{document}
+\maketitle
+\begin{abstract}
+MK-1 is a small, self-contained implementation of a quantum fidelity kernel on two qubits:
+a ZZ-type feature map $U(x)$, the compute--uncompute estimator $K(x,x')=|\langle 00|U(x')^\dagger U(x)|00\rangle|^2$,
+and a visualisation of the kernel-SVM pipeline. The construction is not new; it follows Havl\'{\i}\v{c}ek et al.~\cite{havlicek} and Schuld--Killoran~\cite{schuld}.
+This note records exactly what the code computes, documents a defect in the original script (its ``entangling'' gate
+was a no-op, so the \DIFdelbegin \DIFdel{kernel factorised}\DIFdelend \DIFaddbegin \DIFadd{state is a product state and the kernel factorises, proved in Lean on explicit $4\times4$ matrices}\DIFaddend ), and lists what is machine-checked in Lean~4 with Mathlib: for any unitary feature map,
+$K(x,x)=1$, symmetry, $0\le K\le 1$, compute--uncompute equals state fidelity, and positive semidefiniteness of the Gram matrix.
+\DIFaddbegin \DIFadd{A small finite-shot study (6 circuits, $N=256$--$8192$) on a simulator and on one IBM device is reported.
+}\DIFaddend No quantum advantage \DIFdelbegin \DIFdel{, hardware result }\DIFdelend or new learning-theoretic claim is made\DIFaddbegin \DIFadd{, and no SVM is trained}\DIFaddend .
+\end{abstract}
+
+\section{The construction}
+Qubit 0 is the first tensor factor and the CNOT control. For $x=(x_0,x_1)\in\mathbb{R}^2$,
+\[
+U(x)=\mathrm{CNOT}\,(I\otimes R_Z(2x_0x_1))\,\mathrm{CNOT}\,(R_Z(2x_0)\otimes R_Z(2x_1))\,(H\otimes H),
+\qquad R_Z(\theta)=\mathrm{diag}(e^{-i\theta/2},e^{i\theta/2}).
+\]
+Since $\mathrm{CNOT}(I\otimes R_Z(\theta))\mathrm{CNOT}=e^{-i\theta Z\otimes Z/2}$, writing basis states by signs $s\in\{\pm1\}^2$,
+\[
+U(x)|00\rangle=\tfrac12\sum_{s} e^{-i\varphi(s,x)}|s\rangle,\qquad \varphi(s,x)=x_0s_0+x_1s_1+x_0x_1s_0s_1,
+\]
+so with $\Delta=x-x'$ and $\Delta_{01}=x_0x_1-x_0'x_1'$,
+\[
+K(x,x')=\Bigl|\tfrac14\sum_{s}e^{-i(\Delta_0s_0+\Delta_1s_1+\Delta_{01}s_0s_1)}\Bigr|^2 .
+\]
+This is one layer of the ZZ feature map of~\cite{havlicek} with the simplified pair coefficient $x_0x_1$
+(their map uses $(\pi-x_0)(\pi-x_1)$ and two layers). With one layer, and on two qubits, the kernel has the
+closed form above and is trivially classically computable; MK-1 is a teaching and testing artefact.
+\DIFaddbegin \DIFadd{The closed form (}\texttt{\DIFadd{kernel\_closed\_form}}\DIFadd{) agrees with the statevector kernel to $10^{-12}$ in the tests ($1.3\times10^{-15}$ on the 16 pairs of Section~\ref{sec:shots}).
+General results on when quantum kernels concentrate or can be dequantised~\mbox{%DIFAUXCMD
+\cite{kubler,thanasilp,huang} }\hskip0pt%DIFAUXCMD
+are cited, not proved or formalised here.
+}\DIFaddend 
+
+\section{A defect in the original script}
+The original \texttt{mk1\_moving\_tower.py} (kept in \texttt{original/}) applied the middle $R_Z(2x_0x_1)$ to the \emph{control} qubit.
+A diagonal gate on the control commutes with CNOT, so the two CNOTs cancel and no $Z\otimes Z$ phase is produced; the kernel becomes the
+product $\cos^2(\Delta_0+\Delta_{01})\cos^2\Delta_1$. The package keeps this as \texttt{variant="legacy"} for reproducibility and uses
+the corrected map by default. Both facts ($\mathrm{CNOT}(D\otimes I)\mathrm{CNOT}=D\otimes I$ and the $Z\otimes Z$ phase for a target gate)
+are proved in Lean (\texttt{cnot\_onControl\_cnot}, \DIFaddbegin \DIFadd{also stated as }\texttt{\DIFadd{phantom\_entangler}}\DIFadd{; }\DIFaddend \texttt{cnot\_onTarget\_cnot}). \DIFaddbegin \texttt{\DIFadd{lean/MK1/Factorization.lean}} \DIFadd{proves on explicit $4\times4$ complex
+matrices that the legacy state is a product state (}\texttt{\DIFadd{legacyState\_eq\_prod}}\DIFadd{), that inner products and kernels of product states factor
+(}\texttt{\DIFadd{inner\_prod2}}\DIFadd{, }\texttt{\DIFadd{kernel4\_prod2}}\DIFadd{), hence the legacy kernel is a product of single-qubit kernels (}\texttt{\DIFadd{legacy\_kernel\_factors}}\DIFadd{);
+it also proves }\texttt{\DIFadd{kernel4\_symm}} \DIFadd{and }\texttt{\DIFadd{kernel4\_self}} \DIFadd{for the concrete $4$-dimensional kernel.
+}\DIFaddend 
+
+\section{What is machine-checked}
+\texttt{lean/MK1/FidelityKernel.lean} defines $K_\psi(x,y)=|\langle\psi(y),\psi(x)\rangle|^2$ for any family $\psi$ in a complex inner product space and proves:
+\begin{itemize}
+\item \texttt{fidelity\_self}, \texttt{fidelity\_symm}, \texttt{fidelity\_nonneg}, \texttt{fidelity\_le\_one}: $K(x,x)=1$ for unit states, symmetry, $0\le K\le1$ (Cauchy--Schwarz);
+\item \texttt{norm\_featureState}, \texttt{computeUncompute\_eq\_fidelity}: states $U(x)v$ from unitaries (linear isometry equivalences) are unit vectors, and $|\langle v,U(y)^{-1}U(x)v\rangle|^2=K(x,y)$;
+\item \texttt{fidelity\_gram\_posSemidef}: for states in $\mathbb{C}^n$ and finitely many points, the matrix $[K(x_j,x_i)]$ is positive semidefinite,
+via $|\langle a,b\rangle|^2=\langle a\otimes\bar a,b\otimes\bar b\rangle$ and Mathlib's Gram-matrix theorem.
+\end{itemize}
+All are \texttt{sorry}-free; \texttt{AxiomAudit.lean} shows only \texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}; CI rebuilds and audits on every push.
+These are standard facts; the Lean development checks them, it does not establish anything new.
+The Lean code does not model the specific gate angles beyond the CNOT identities \DIFaddbegin \DIFadd{and the legacy factorisation}\DIFaddend ; the agreement of the numerical circuit with the closed form is checked by the Python tests.
+
+\section{What is tested numerically}
+The Python tests (CI, every push) check for both variants: unitarity of $U(x)$; $K(x,x)=1$; symmetry; $0\le K\le1$;
+compute--uncompute equals $|\langle\psi(x')|\psi(x)\rangle|^2$; agreement with the matrix-free closed form to $10^{-12}$;
+Gram matrices symmetric with minimum eigenvalue $>-10^{-10}$; and the two CNOT identities.
+
+\section{\DIFdelbegin \DIFdel{Limitations}\DIFdelend \DIFaddbegin \DIFadd{Finite-shot estimation}\DIFaddend }\DIFdelbegin \DIFdel{Exact statevector simulation, no shot noise or hardware ; two qubits; }\DIFdelend \DIFaddbegin \label{sec:shots}
+\DIFadd{For four points (seed 7) the exact Gram matrix has off-diagonal entries $0.1246, 0.0840, 0.2525, 0.9176, 0.3283, 0.3298$ (minimum eigenvalue $0.081$).
+Each is estimated as the frequency of $00$ in a compute--uncompute circuit, using the first $N$ of 8192 shots. RMS error over the six entries:
+}\begin{center}\begin{tabular}{lccccccc}
+\DIFadd{$N$ }& \DIFadd{256 }& \DIFadd{512 }& \DIFadd{1024 }& \DIFadd{2048 }& \DIFadd{4096 }& \DIFadd{8192 }& \DIFadd{log--log slope}\\\hline
+\DIFadd{Aer simulator (seed 11) }& \DIFadd{.0234 }& \DIFadd{.0105 }& \DIFadd{.0084 }& \DIFadd{.0102 }& \DIFadd{.0045 }& \DIFadd{.0044 }& \DIFadd{$-0.44$}\\
+\DIFadd{IBM }\texttt{\DIFadd{ibm\_kingston}} & \DIFadd{.0373 }& \DIFadd{.0330 }& \DIFadd{.0299 }& \DIFadd{.0218 }& \DIFadd{.0213 }& \DIFadd{.0194 }& \DIFadd{$-0.20$
+}\end{tabular}\end{center}
+\DIFadd{A 400-repetition binomial study gives slope $-0.506$, consistent with $N^{-1/2}$. On hardware the error levels off near $0.02$:
+device noise adds a bias that more shots do not remove. Run: }\texttt{\DIFadd{ibm\_kingston}}\DIFadd{, 2026-11-04 20:42 UTC, one SamplerV2 job
+}\texttt{\DIFadd{dblpgrd8ft8s738ths20}}\DIFadd{, 6 circuits, 8192 shots, transpiled depth 18, no error mitigation (}\texttt{\DIFadd{hardware/run.py}}\DIFadd{, }\texttt{\DIFadd{results/}}\DIFadd{).
+}
+
+\section{\DIFadd{Limitations}}
+\DIFadd{Two qubits; one hardware job without mitigation; }\DIFaddend no SVM is trained in the package (the DUAL/DECIDE stages are illustrative);
+no claim of quantum advantage. For the limits of such kernels see~\cite{kubler}.
+
+\begin{thebibliography}{9}
+\bibitem{havlicek} V.~Havl\'{\i}\v{c}ek, A.~D.~C\'orcoles, K.~Temme, A.~W.~Harrow, A.~Kandala, J.~M.~Chow, J.~M.~Gambetta,
+Supervised learning with quantum-enhanced feature spaces, \emph{Nature} 567 (2019) 209--212, doi:10.1038/s41586-019-0980-2.
+\bibitem{schuld} M.~Schuld, N.~Killoran, Quantum machine learning in feature Hilbert spaces, \emph{Phys.\ Rev.\ Lett.} 122 (2019) 040504.
+\bibitem{kubler} J.~M.~K\"ubler, S.~Buchholz, B.~Sch\"olkopf, The inductive bias of quantum kernels, \emph{NeurIPS} 34 (2021).
+\DIFaddbegin \bibitem{thanasilp} \DIFadd{S.~Thanasilp, S.~Wang, M.~Cerezo, Z.~Holmes, Exponential concentration in quantum kernel methods, }\emph{\DIFadd{Nat.\ Commun.}} \DIFadd{15 (2024) 5200.
+}\bibitem{huang} \DIFadd{H.-Y.~Huang et al., Power of data in quantum machine learning, }\emph{\DIFadd{Nat.\ Commun.}} \DIFadd{12 (2021) 2631.
+}\DIFaddend \end{thebibliography}
+Code: \DIFdelbegin %DIFDELCMD < \url{https://github.com/BenFrohman/mk1-quantum-kernel}%%%
+\DIFdelend \DIFaddbegin \url{https://github.com/BenFrohman/mk1-kernel-limits}\DIFaddend . License: Apache-2.0 (code), CC BY 4.0 (this note).
+\end{document}
