@@ -10,7 +10,7 @@ readme = "README.md"
 license = "Apache-2.0"
 authors = [{ name = "Benjamin Stanley Frohman", email = "frohmanbenjamin@gmail.com" }]
 requires-python = ">=3.9"
-dependencies = ["numpy", "pillow"]
+dependencies = ["numpy", "pillow", "qiskit"]
 
 [project.optional-dependencies]
 test = ["pytest"]
