@@ -9,3 +9,9 @@ A two-qubit ZZ fidelity kernel, studied for what it is: a classically computable
 
 Scope: no SVM or kernel ridge model is trained, there is no quantum-advantage claim, and the general concentration and dequantisation results are cited, not proved.
 Hardware: ibm_kingston, 2026-11-04, job dblpgrd8ft8s738ths20, no mitigation.
+
+## License and copyright
+
+Licensed under the Apache License, Version 2.0. See [`LICENSE`](LICENSE) and [`NOTICE`](NOTICE).
+
+© 2026 Benjamin Stanley Frohman.
