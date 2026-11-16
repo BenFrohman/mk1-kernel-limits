@@ -1,11 +1,16 @@
 /-
-Copyright (c) 2026 Benjamin Stanley Frohman. Released under Apache 2.0.
-Concrete 4×4 factorization theorem for the MK-1 legacy circuit.
+Copyright (c) 2026 Benjamin Stanley Frohman. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Benjamin Stanley Frohman
 -/
+
 import Mathlib
 import MK1.FidelityKernel
 
 /-!
+# lean.MK1.Factorization
+
+Concrete 4×4 factorization theorem for the MK-1 legacy circuit.
 # Factorization of the legacy MK-1 map
 
 Basis order `|00⟩,|01⟩,|10⟩,|11⟩`, qubit 0 = first factor = CNOT control. If the middle
