@@ -15,3 +15,5 @@ Hardware: ibm_kingston, 2026-11-04, job dblpgrd8ft8s738ths20, no mitigation.
 Licensed under the Apache License, Version 2.0. See [`LICENSE`](LICENSE) and [`NOTICE`](NOTICE).
 
 © 2026 Benjamin Stanley Frohman.
+
+Any use, reproduction, or redistribution, in whole or in part, must retain the [NOTICE](NOTICE) file and credit Benjamin Stanley Frohman as the author. If you use this work in a publication, please cite it (see [CITATION.cff](CITATION.cff) / the Zenodo DOI).
